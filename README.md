@@ -8,9 +8,9 @@ It entails basic features such as:
 5. Update Task Details
 6. Delete Task
 7. Master Records
-   7.1 Status Master
-   7.2 Role Master
-   7.3 Test Master ( For Testing Purposes )
+7.1 Status Master
+7.2 Role Master
+7.3 Test Master ( For Testing Purposes )
 TBA:
 1. Admin Rights
 2. Admin Panels
