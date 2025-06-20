@@ -3,6 +3,10 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\RoleMaster;
+use App\Models\StatusMaster;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,5 +22,44 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        User::create([
+            "name"              => "Haziq",
+            "email"             =>  "haziq@example.com",
+            "email_verified_at" =>  null,
+            "password"          =>  "123123123",
+            "role_master_id"    =>  1,
+            "remember_token"    =>  null
+        ]);
+
+        $roles = [
+            [
+                "name"          =>  "Admin",
+                "created_by"    =>  1
+            ],
+            [
+                "name"          =>  "User",
+                "created_by"    =>  1
+            ]
+            ];
+        foreach($roles as $roles) {
+            RoleMaster::create($roles);
+        }
+        
+
+        $status = [
+            [
+                "name"          =>  "Complete"
+            ],
+            [
+                "name"          =>  "Incomplete"
+            ],
+            [
+                "name"          =>  "Overdue"
+            ]
+            ];
+        foreach($status as $status) {
+            StatusMaster::create($status);
+        }
     }
 }

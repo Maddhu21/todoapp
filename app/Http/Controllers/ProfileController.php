@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -51,7 +53,21 @@ class ProfileController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            "name"  =>  "required",
+            "email" =>  "required"
+        ], 
+        [
+            "name"  =>  [
+                "required"  =>  "Name field cannot be empty."
+            ],
+            "email" =>  [
+                "required"  => "Email field cannot be empty."
+            ]
+        ]);
+        $record = User::findOrFail($id);
+        $record->update(collect($request->all())->toArray());
+        return response()->json(['success' => true]);
     }
 
     /**
