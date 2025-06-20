@@ -5,6 +5,7 @@ use App\Http\Controllers\TaskManager;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\testController;
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,5 +40,8 @@ Route::middleware("auth")->group(function () {
     Route::resource('masters', MasterController::class);
     Route::post('/masters/data', [MasterController::class, 'getTableData'])->name('masters.data');
     Route::post('/masters/fetch', [MasterController::class, 'fetchRecord'])->name('masters.edit.fetch');
+
+    //User Profile
+    Route::resource('profiles', ProfileController::class);
 
 });

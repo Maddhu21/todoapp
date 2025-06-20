@@ -28,7 +28,7 @@ class AuthManager extends Controller
             return redirect()->intended(route("home"))
                 ->with('toast', [
                     'type'      =>  'success',
-                    'message'   =>  'Welcome to Todo App',
+                    'message'   =>  'Hello, ' . Auth()->user()->name,
                     'title'     =>  'Welcome'
                 ]);
         }
@@ -37,7 +37,7 @@ class AuthManager extends Controller
             ->with('toast', [
                 'type'      =>  'error',
                 'message'   =>  'Invalid Email or Password',
-                'title'     =>  ''
+                'title'     =>  'Fail'
             ]);
     }
 
