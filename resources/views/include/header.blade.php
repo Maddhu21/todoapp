@@ -86,88 +86,90 @@
     </div>
 </div>
 
-<script type="module">
-    //Script for opening profile modal
-    let name = '';
-    let email = '';
-    $(document).on('click', '.enableEditProfileBtn', function() {
-        openEdit();
-    });
-
-    $(document).on('click', '.cancelEditProfileBtn', function() {
-        closeEdit();
-    });
-
-    $('#profileModal').on('shown.bs.modal', function() {
-        $('#userName').val("{{ Auth()->user()->name }}");
-        $('#userEmail').val("{{ Auth()->user()->email }}");
-    })
-
-    $('#editProfileForm').on('submit', function(e) {
-        e.preventDefault();
-        const data = {};
-
-        $('#editProfileForm').find('input, select, textarea').each(function() {
-            const name = $(this).attr('name');
-            if (!name) return;
-
-            const type = $(this).attr('type');
-
-            if (type === 'checkbox') {
-                if (!data[name]) data[name] = [];
-                if (this.checked) data[name].push($(this).val());
-            } else {
-                data[name] = $(this).val();
-            }
+@push('scripts')
+    <script type="module">
+        //Script for opening profile modal
+        let name = '';
+        let email = '';
+        $(document).on('click', '.enableEditProfileBtn', function() {
+            openEdit();
         });
 
-        $.ajax({
-            url: '{{ route('profiles.update', Auth()->id()) }}',
-            type: 'POST',
-            data: {
-                _method: 'PATCH',
-                _token: data._token,
-                name: data.name,
-                email: data.email
-            },
-            success: function(response) {
-                closeEdit();
-                $('#userName').val(data.name);
-                $('#userEmail').val(data.email);
-                $('#navbarUserName strong').text(data.name);
-                toastr.success("Profile has been updated.", "Success");
-            },
-            error: function(xhr) {
-                if (xhr.status === 422) {
-                    let errors = xhr.responseJSON.errors;
-                    $.each(errors, function(field, messages) {
-                        toastr.error(messages[0],
-                            "Fail"); // Show first error for each field
-                    });
+        $(document).on('click', '.cancelEditProfileBtn', function() {
+            closeEdit();
+        });
+
+        $('#profileModal').on('shown.bs.modal', function() {
+            $('#userName').val("{{ Auth()->user()->name }}");
+            $('#userEmail').val("{{ Auth()->user()->email }}");
+        })
+
+        $('#editProfileForm').on('submit', function(e) {
+            e.preventDefault();
+            const data = {};
+
+            $('#editProfileForm').find('input, select, textarea').each(function() {
+                const name = $(this).attr('name');
+                if (!name) return;
+
+                const type = $(this).attr('type');
+
+                if (type === 'checkbox') {
+                    if (!data[name]) data[name] = [];
+                    if (this.checked) data[name].push($(this).val());
                 } else {
-                    toastr.error("Profile update fail.", "Fail");
-                    console.log(xhr.status);
-                    console.log(xhr.responseJSON.errors);
+                    data[name] = $(this).val();
                 }
-            }
+            });
+
+            $.ajax({
+                url: '{{ route('profiles.update', Auth()->id()) }}',
+                type: 'POST',
+                data: {
+                    _method: 'PATCH',
+                    _token: data._token,
+                    name: data.name,
+                    email: data.email
+                },
+                success: function(response) {
+                    closeEdit();
+                    $('#userName').val(data.name);
+                    $('#userEmail').val(data.email);
+                    $('#navbarUserName strong').text(data.name);
+                    toastr.success("Profile has been updated.", "Success");
+                },
+                error: function(xhr) {
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        $.each(errors, function(field, messages) {
+                            toastr.error(messages[0],
+                                "Fail"); // Show first error for each field
+                        });
+                    } else {
+                        toastr.error("Profile update fail.", "Fail");
+                        console.log(xhr.status);
+                        console.log(xhr.responseJSON.errors);
+                    }
+                }
+            });
         });
-    });
 
-    function closeEdit() {
-        $('.enableEditProfileBtn').removeClass('disabled');
-        $('.editProfileFooter').addClass('d-none');
-        $('#userName').addClass('border-0');
-        $('#userEmail').addClass('border-0');
-        $('#userName').prop('disabled', true);
-        $('#userEmail').prop('disabled', true);
-    }
+        function closeEdit() {
+            $('.enableEditProfileBtn').removeClass('disabled');
+            $('.editProfileFooter').addClass('d-none');
+            $('#userName').addClass('border-0');
+            $('#userEmail').addClass('border-0');
+            $('#userName').prop('disabled', true);
+            $('#userEmail').prop('disabled', true);
+        }
 
-    function openEdit() {
-        $('.enableEditProfileBtn').addClass('disabled');
-        $('.editProfileFooter').removeClass('d-none');
-        $('#userName').removeClass('border-0');
-        $('#userEmail').removeClass('border-0');
-        $('#userName').removeAttr('disabled');
-        $('#userEmail').removeAttr('disabled');
-    }
-</script>
+        function openEdit() {
+            $('.enableEditProfileBtn').addClass('disabled');
+            $('.editProfileFooter').removeClass('d-none');
+            $('#userName').removeClass('border-0');
+            $('#userEmail').removeClass('border-0');
+            $('#userName').removeAttr('disabled');
+            $('#userEmail').removeAttr('disabled');
+        }
+    </script>
+@endpush

@@ -6,6 +6,7 @@ use App\Models\Task;
 use App\Models\StatusMaster;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class TaskManager extends Controller
 {
@@ -52,16 +53,17 @@ class TaskManager extends Controller
         $request->validate([
             'title'         =>  'required',
             'deadline'      =>  'required',
-            'description'      =>  'required',
+            'description'      =>  'required'
+
         ], [
             'title'    =>  [
-                'required' => 'This field is required'
+                'required' => 'Title is required!'
             ],
             'deadline'  =>  [
-                'required'  =>  'This field is required'
+                'required'  =>  'Deadline is required!'
             ],
             'description'  =>  [
-                'required'  =>  'This field is required'
+                'required'  =>  'Description is required!'
             ]
         ]);
 
@@ -77,19 +79,9 @@ class TaskManager extends Controller
             'description'   =>  $request->description
         ];
         if ($task->create($data)) {
-            return back()
-                ->with('toast', [
-                    'type'      =>  'success',
-                    'message'   =>  'Task has been added successfully.',
-                    'title'     =>  'Success'
-                ]);
+            return response()->json(['success' => true]);
         }
-        return back()
-            ->with('toast', [
-                'type'      =>  'error',
-                'message'   =>  'Task not added.',
-                'title'     =>  'Fail'
-            ]);
+        return response()->json(['success' => false]);
     }
 
     function updateTaskStatus($id, $status_id)
