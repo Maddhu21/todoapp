@@ -44,14 +44,6 @@ class MasterController extends Controller
 
         $query = DB::table($table)->whereNull('deleted_at');
 
-        if ($search) {
-            $query->where(function ($q) use ($displayColumns, $search) {
-                foreach ($displayColumns as $col) {
-                    $q->orWhere($col, 'like', '%' . $search . '%');
-                }
-            });
-        }
-
         $data = $query->paginate($perPage);
 
         return response()->json([
