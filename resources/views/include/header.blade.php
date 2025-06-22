@@ -1,3 +1,15 @@
+@push('style')
+    <style>
+        #profileImagePreview {
+            object-fit: cover;
+        }
+
+        .bi-camera-fill {
+            font-size: 1.2rem;
+        }
+    </style>
+@endpush
+
 <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-secondary" style="width: 280px;">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
         <span class="fs-4">{{ ENV('APP_NAME') }}</span>
@@ -24,8 +36,8 @@
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle"
             data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ asset('assets\pictures\userprofile\default.svg') }}" alt="" width="32"
-                height="32" class="rounded-circle me-2">
+            <img src="{{ Auth()->user()->profile_image ?? asset('assets\pictures\userprofile\default.svg') }}"
+                alt="" width="32" height="32" class="rounded-circle me-2">
             <span id="navbarUserName"><strong>{{ Auth()->user()->name }}</strong></span>
         </a>
         <ul class="dropdown-menu text-small shadow">
@@ -56,12 +68,34 @@
                 </a>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="d-flex justify-content-center">
-                <img src="http://127.0.0.1:8000/assets\pictures\userprofile\default.svg" alt="" width="300px"
-                    height="300px" class="rounded-circle me-2">
-            </div>
+
             <form id="editProfileForm" action="" method="POST">
                 @csrf
+                <div class="d-flex justify-content-center">
+                    <div class="position-relative">
+                        <img src="{{ Auth()->user()->profile_image ?? asset('assets\pictures\userprofile\default.svg') }}"
+                            alt="" width="300px" height="300px" class="rounded-circle me-2"
+                            id="profileImagePreview">
+
+                        <!-- Camera Icon Overlay -->
+                        <label for="profileImageInput" class="position-absolute d-none" id="cameraIconOverlay"
+                            style="bottom: 10px; right: 20px; cursor: pointer;">
+                            <i class="p-2 rounded-circle shadow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="icon icon-tabler icons-tabler-outline icon-tabler-camera">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2" />
+                                    <path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                                </svg>
+                            </i>
+                        </label>
+                        <input type="file" id="profileImageInput" name="profile_image" accept="image/*"
+                            class="d-none">
+                    </div>
+                </div>
                 <div class="modal-body">
                     <div class="mb-3 d-flex align-items-center">
                         <label for="userName" class="form-control w-75 border-0 text-end">Name</label>
@@ -91,6 +125,7 @@
         //Script for opening profile modal
         let name = '';
         let email = '';
+        let originalProfile = "";
         $(document).on('click', '.enableEditProfileBtn', function() {
             openEdit();
         });
@@ -103,6 +138,20 @@
             $('#userName').val("{{ Auth()->user()->name }}");
             $('#userEmail').val("{{ Auth()->user()->email }}");
         })
+
+        document.getElementById('profileImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            originalProfile = document.getElementById('profileImagePreview').src;
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    document.getElementById('profileImagePreview').src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
 
         $('#editProfileForm').on('submit', function(e) {
             e.preventDefault();
@@ -157,15 +206,18 @@
         function closeEdit() {
             $('.enableEditProfileBtn').removeClass('disabled');
             $('.editProfileFooter').addClass('d-none');
+            $('#cameraIconOverlay').addClass('d-none');
             $('#userName').addClass('border-0');
             $('#userEmail').addClass('border-0');
             $('#userName').prop('disabled', true);
             $('#userEmail').prop('disabled', true);
+            document.getElementById('profileImagePreview').src = originalProfile;
         }
 
         function openEdit() {
             $('.enableEditProfileBtn').addClass('disabled');
             $('.editProfileFooter').removeClass('d-none');
+            $('#cameraIconOverlay').removeClass('d-none');
             $('#userName').removeClass('border-0');
             $('#userEmail').removeClass('border-0');
             $('#userName').removeAttr('disabled');

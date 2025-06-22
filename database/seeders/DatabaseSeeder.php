@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             "email_verified_at" =>  null,
             "password"          =>  "123123123",
             "role_master_id"    =>  1,
+            "profile_image"     =>  null,
             "remember_token"    =>  null
         ]);
 
@@ -41,11 +42,11 @@ class DatabaseSeeder extends Seeder
                 "name"          =>  "User",
                 "created_by"    =>  1
             ]
-            ];
-        foreach($roles as $roles) {
+        ];
+        foreach ($roles as $roles) {
             RoleMaster::create($roles);
         }
-        
+
 
         $status = [
             [
@@ -57,8 +58,8 @@ class DatabaseSeeder extends Seeder
             [
                 "name"          =>  "Overdue"
             ]
-            ];
-        foreach($status as $status) {
+        ];
+        foreach ($status as $status) {
             StatusMaster::create($status);
         }
     }

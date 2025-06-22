@@ -10,6 +10,7 @@
     <title>{{ env('APP_NAME') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('style')
+    @stack('styles')
 </head>
 
 <body class="d-flex h-100">

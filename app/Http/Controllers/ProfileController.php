@@ -53,18 +53,26 @@ class ProfileController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            "name"  =>  "required",
-            "email" =>  "required"
-        ], 
-        [
-            "name"  =>  [
-                "required"  =>  "Name field cannot be empty."
+        $request->validate(
+            [
+                "name"  =>  "required",
+                "email" =>  "required"
             ],
-            "email" =>  [
-                "required"  => "Email field cannot be empty."
+            [
+                "name"  =>  [
+                    "required"  =>  "Name field cannot be empty."
+                ],
+                "email" =>  [
+                    "required"  => "Email field cannot be empty."
+                ]
             ]
-        ]);
+        );
+
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            $filename = 'profile_image_' . Auth::user()->name . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/assets/pictures/userprofile', $filename);
+        }
         $record = User::findOrFail($id);
         $record->update(collect($request->all())->toArray());
         return response()->json(['success' => true]);
