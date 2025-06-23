@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -56,7 +58,8 @@ class ProfileController extends Controller
         $request->validate(
             [
                 "name"  =>  "required",
-                "email" =>  "required"
+                "email" =>  "required",
+                "profile_image" =>  "nullable|image|max:2048"
             ],
             [
                 "name"  =>  [
@@ -67,14 +70,28 @@ class ProfileController extends Controller
                 ]
             ]
         );
+        $user = User::findOrFail($id);
+        $image_path = null;
+        if ($request->hasFile('profile_image') && $request->file('profile_image')->isValid()) {
+            try {
+                //Check file exists
+                $existing = $user->profile_image;
+                if(is_null($existing)) {
 
-        if ($request->hasFile('profile_image')) {
-            $file = $request->file('profile_image');
-            $filename = 'profile_image_' . Auth::user()->name . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/assets/pictures/userprofile', $filename);
+                }
+                //Store file and get path
+                $file = $request->file('profile_image');
+                $filename = $file->hashName();
+                $file->storeAs('assets/pictures/userprofile', $filename, 'public');
+                $image_path = "{{ asset('storage/assets/pictures/userprofile') }}" . $filename;
+            } catch (\Exception $e) {
+                return response()->json(['errors' => $e->getMessage(), 'trace' => $e->getTrace()], 500);
+            }
         }
-        $record = User::findOrFail($id);
-        $record->update(collect($request->all())->toArray());
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->profile_image = $image_path;
+        $user->save();
         return response()->json(['success' => true]);
     }
 

@@ -1,13 +1,13 @@
 @push('style')
-    <style>
-        #profileImagePreview {
-            object-fit: cover;
-        }
+<style>
+    #profileImagePreview {
+        object-fit: cover;
+    }
 
-        .bi-camera-fill {
-            font-size: 1.2rem;
-        }
-    </style>
+    .bi-camera-fill {
+        font-size: 1.2rem;
+    }
+</style>
 @endpush
 
 <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-secondary" style="width: 280px;">
@@ -23,13 +23,13 @@
             </a>
         </li>
         @if (session('role') == 'Admin')
-            <hr>
-            <li>
-                <a href="{{ route('masters.index') }}"
-                    class="nav-link {{ request()->routeIs('masters.index') ? 'active' : 'link-body-emphasis' }}">
-                    Master Settings
-                </a>
-            </li>
+        <hr>
+        <li>
+            <a href="{{ route('masters.index') }}"
+                class="nav-link {{ request()->routeIs('masters.index') ? 'active' : 'link-body-emphasis' }}">
+                Master Settings
+            </a>
+        </li>
         @endif
     </ul>
     <hr>
@@ -69,7 +69,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form id="editProfileForm" action="" method="POST">
+            <form id="editProfileForm" action="" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="d-flex justify-content-center">
                     <div class="position-relative">
@@ -121,107 +121,110 @@
 </div>
 
 @push('scripts')
-    <script type="module">
-        //Script for opening profile modal
-        let name = '';
-        let email = '';
-        let originalProfile = "";
-        $(document).on('click', '.enableEditProfileBtn', function() {
-            openEdit();
-        });
+<script type="module">
+    //Script for opening profile modal
+    let name = '';
+    let email = '';
+    let originalProfile = document.getElementById('profileImagePreview').src;
+    $(document).on('click', '.enableEditProfileBtn', function() {
+        openEdit();
+    });
 
-        $(document).on('click', '.cancelEditProfileBtn', function() {
-            closeEdit();
-        });
+    $(document).on('click', '.cancelEditProfileBtn', function() {
+        closeEdit(true);
+    });
 
-        $('#profileModal').on('shown.bs.modal', function() {
-            $('#userName').val("{{ Auth()->user()->name }}");
-            $('#userEmail').val("{{ Auth()->user()->email }}");
-        })
+    $('#profileModal').on('shown.bs.modal', function() {
+        $('#userName').val("{{ Auth()->user()->name }}");
+        $('#userEmail').val("{{ Auth()->user()->email }}");
+    })
 
-        document.getElementById('profileImageInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            originalProfile = document.getElementById('profileImagePreview').src;
-            if (file) {
-                const reader = new FileReader();
+    document.getElementById('profileImageInput').addEventListener('change', function(e) {
 
-                reader.onload = function(e) {
-                    document.getElementById('profileImagePreview').src = e.target.result;
-                };
 
-                reader.readAsDataURL(file);
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                document.getElementById('profileImagePreview').src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+    $('#editProfileForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this); // This automatically captures all form fields including files
+
+        // For checkboxes, you might need to handle them separately
+        $('#editProfileForm').find('input[type="checkbox"]').each(function() {
+            const name = $(this).attr('name');
+            if (!name) return;
+
+            if (this.checked) {
+                formData.append(name, $(this).val());
             }
         });
 
-        $('#editProfileForm').on('submit', function(e) {
-            e.preventDefault();
-            const data = {};
+        // Add the _method and _token if not automatically included
+        formData.append('_method', 'PATCH');
+        for(let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
 
-            $('#editProfileForm').find('input, select, textarea').each(function() {
-                const name = $(this).attr('name');
-                if (!name) return;
-
-                const type = $(this).attr('type');
-
-                if (type === 'checkbox') {
-                    if (!data[name]) data[name] = [];
-                    if (this.checked) data[name].push($(this).val());
+        $.ajax({
+            url: "{{ route('profiles.update', Auth()->id()) }}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                closeEdit(false);
+                /* $('#userName').val(formData.get('name'));
+                $('#userEmail').val(formData.get('email'));
+                $('#navbarUserName strong').text(formData.get('name'));
+                toastr.success("Profile has been updated.", "Success"); */
+                console.log(response);
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    $.each(errors, function(field, messages) {
+                        toastr.error(messages[0],
+                            "Fail"); // Show first error for each field
+                    });
                 } else {
-                    data[name] = $(this).val();
+                    toastr.error("Profile update fail.", "Fail");
+                    console.log(xhr.status);
+                    console.log(xhr.responseJSON);
                 }
-            });
-
-            $.ajax({
-                url: '{{ route('profiles.update', Auth()->id()) }}',
-                type: 'POST',
-                data: {
-                    _method: 'PATCH',
-                    _token: data._token,
-                    name: data.name,
-                    email: data.email
-                },
-                success: function(response) {
-                    closeEdit();
-                    $('#userName').val(data.name);
-                    $('#userEmail').val(data.email);
-                    $('#navbarUserName strong').text(data.name);
-                    toastr.success("Profile has been updated.", "Success");
-                },
-                error: function(xhr) {
-                    if (xhr.status === 422) {
-                        let errors = xhr.responseJSON.errors;
-                        $.each(errors, function(field, messages) {
-                            toastr.error(messages[0],
-                                "Fail"); // Show first error for each field
-                        });
-                    } else {
-                        toastr.error("Profile update fail.", "Fail");
-                        console.log(xhr.status);
-                        console.log(xhr.responseJSON.errors);
-                    }
-                }
-            });
+            }
         });
+    });
 
-        function closeEdit() {
-            $('.enableEditProfileBtn').removeClass('disabled');
-            $('.editProfileFooter').addClass('d-none');
-            $('#cameraIconOverlay').addClass('d-none');
-            $('#userName').addClass('border-0');
-            $('#userEmail').addClass('border-0');
-            $('#userName').prop('disabled', true);
-            $('#userEmail').prop('disabled', true);
+    function closeEdit(targetPicture) {
+        $('.enableEditProfileBtn').removeClass('disabled');
+        $('.editProfileFooter').addClass('d-none');
+        $('#cameraIconOverlay').addClass('d-none');
+        $('#userName').addClass('border-0');
+        $('#userEmail').addClass('border-0');
+        $('#userName').prop('disabled', true);
+        $('#userEmail').prop('disabled', true);
+        if (targetPicture) {
             document.getElementById('profileImagePreview').src = originalProfile;
         }
+    }
 
-        function openEdit() {
-            $('.enableEditProfileBtn').addClass('disabled');
-            $('.editProfileFooter').removeClass('d-none');
-            $('#cameraIconOverlay').removeClass('d-none');
-            $('#userName').removeClass('border-0');
-            $('#userEmail').removeClass('border-0');
-            $('#userName').removeAttr('disabled');
-            $('#userEmail').removeAttr('disabled');
-        }
-    </script>
+    function openEdit() {
+        $('.enableEditProfileBtn').addClass('disabled');
+        $('.editProfileFooter').removeClass('d-none');
+        $('#cameraIconOverlay').removeClass('d-none');
+        $('#userName').removeClass('border-0');
+        $('#userEmail').removeClass('border-0');
+        $('#userName').removeAttr('disabled');
+        $('#userEmail').removeAttr('disabled');
+    }
+</script>
 @endpush
