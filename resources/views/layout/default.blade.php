@@ -24,7 +24,7 @@
             toastr[toastrData.type](toastrData.message, toastrData.title);
         </script>
     @endif
-    @stack('scripts');
+    @stack('scripts')
 </body>
 
 
