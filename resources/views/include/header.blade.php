@@ -65,7 +65,7 @@
                 <div class="col-md-4 py-3 bg-light">
                     <form id="changePfpForm" enctype="multipart/form-data">
                         @csrf
-                        <div class="mb-5 position-relative d-inline-block profile-wrapper">
+                        <div class="position-relative d-inline-block profile-wrapper">
                             <img src="{{ asset('storage/'.Auth()->user()->profile_image ) ?? asset('assets\pictures\userprofile\default.svg') }}"
                                 alt="" class="rounded-5 me-2 object-fit-cover profile-image w-100 h-100"
                                 id="profileImagePreview">
@@ -91,42 +91,76 @@
                         </div>
                     </form>
 
+                    <!-- <div class="list-group" id="list-tab" role="tablist">
+                            <a href="#accDetails" class="nav-link active" aria-current="page" data-bs-toggle="list">
+                                Account Details
+                            </a>
+                            <a href="#changePassword" class="nav-link link-body-emphasis" data-bs-toggle="list">
+                                Change Password
+                            </a>
+                    </div> -->
+
                     <ul class="nav flex-column mb-auto">
                         <li class="nav-item">
-                            <a href="#" class="nav-link active" aria-current="page">
+                            <a href="#accDetails" class="nav-link active" aria-current="page" data-bs-toggle="list">
                                 Account Details
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#" class="nav-link link-body-emphasis">
+                            <a href="#changePassword" class="nav-link link-body-emphasis" data-bs-toggle="list">
                                 Change Password
                             </a>
                         </li>
                     </ul>
                 </div>
                 <!-- Right Side -->
-                <div class="col-md-8 py-3">
-                    <form id="editProfileForm" action="" method="POST" enctype="multipart/form-data">
-                        @csrf
+                <div class="tab-content col-md-8 py-3">
+                    <!-- Account Details  -->
+                    <div class="tab-pane fade active show" id="accDetails" role="tabpanel">
+                        <form id="editProfileForm" action="" method="POST" enctype="multipart/form-data">
+                            @csrf
 
-                        <div class="mb-3 d-flex align-items-center">
-                            <label for="userName" class="form-control border-0 text-end">Name</label>
-                            <input name="name" type="text" style="background-color: transparent;"
-                                class="form-control border-0 border-2 shadow-none bg-none" id="userName" disabled>
-                        </div>
+                            <div class="mb-3 d-flex align-items-center">
+                                <label for="userName" class="form-control border-0 text-end">Name</label>
+                                <input name="name" type="text" style="background-color: transparent;"
+                                    class="form-control border-0 border-2 shadow-none bg-none" id="userName" disabled>
+                            </div>
 
-                        <div class="mb-3 d-flex align-items-center">
-                            <label for="userEmail" class="form-control w-75 border-0 text-end">Email</label>
-                            <input name="email" type="text" style="background-color: transparent;"
-                                class="form-control border-0 border-2 shadow-none" id="userEmail" disabled>
-                        </div>
+                            <div class="mb-3 d-flex align-items-center">
+                                <label for="userEmail" class="form-control w-75 border-0 text-end">Email</label>
+                                <input name="email" type="text" style="background-color: transparent;"
+                                    class="form-control border-0 border-2 shadow-none" id="userEmail" disabled>
+                            </div>
 
-                        <div class="modal-footer editProfileFooter d-none">
-                            <button type="button"
-                                class="btn btn-outline-danger rounded-pill cancelEditProfileBtn">Cancel</button>
-                            <button type="submit" class="btn btn-warning rounded-pill">Edit</button>
-                        </div>
-                    </form>
+                            <div class="modal-footer editProfileFooter d-none">
+                                <button type="button"
+                                    class="btn btn-outline-danger rounded-pill cancelEditProfileBtn">Cancel</button>
+                                <button type="submit" class="btn btn-warning rounded-pill">Edit</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="tab-pane fade" id="changePassword" role="tabpanel">
+                        <form id="editProfileForm" action="" method="POST" enctype="multipart/form-data">
+                            @csrf
+
+                            <div class="mb-3 d-flex ">
+                                <label for="userName" class="form-control border-0 ">Old Password</label>
+                                <input type="password" name="oldPassword" >
+                            </div>
+
+                            <div class="mb-3 d-flex align-items-center">
+                                <label for="userEmail" class="form-control border-0 ">New Password</label>
+                                <input type="password" name="newPassword" >
+                            </div>
+
+                            <div class="mb-3 d-flex align-items-center">
+                                <label for="userEmail" class="form-control  border-0 ">Confirm New Password</label>
+                                <input type="password" name="newPassword_confirmation" >
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -166,7 +200,7 @@
             //Prepare FormData
             const form = document.getElementById("changePfpForm");
             const formData = new FormData(form);
-            // Add the _method and _token if not automatically included
+            // Add the _method and _token if not automatically includemmd
             formData.append('_method', 'PATCH');
 
             $.ajax({
